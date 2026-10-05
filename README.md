@@ -396,20 +396,21 @@ Show capacity percentages only for limited-capacity slots.
 
 | Component | Responsibility |
 |---|---|
-| Visitor web application | Listings, availability, booking, ticket retrieval |
-| Admin application | Inventory, schedules, closures, users, reports |
-| Counter interface | Walk-in booking and ticket issuance |
-| Verification interface | QR scanning and admission |
-| Backend API | Business rules, authentication, capacity, ticket validation |
+| ASP.NET Core Web API (C#) | Shared API for inventory management and public listings, as well as availability, bookings, tickets, verification, and reports |
+| Admin MVC interface | ASP.NET Core MVC with Razor views for inventory, schedules, closures, users, counter bookings, and reports |
+| Public MVC interface | ASP.NET Core MVC with Razor views for public listings, availability, booking, and ticket retrieval |
+| Counter and verification interfaces | Staff workflows provided through the admin MVC interface and authorized API operations |
 | Relational database | Booking, inventory, payment, and check-in records |
 | Background worker | Notifications, hold expiry, exports, retries |
 | Object storage | Monument images and generated documents |
 | Payment provider | Optional online payment processing |
 | Notification provider | Email and optional SMS |
 
-A practical implementation could use **React or Next.js**, **Node.js, Django, or Laravel**, and **PostgreSQL**. The final stack should follow the development team’s experience and hosting requirements.
+Both MVC interfaces consume the same ASP.NET Core Web API. Inventory, publishing, slots, blocked dates, availability, booking, QR verification, and reports use shared server-side business rules; UI controllers must not duplicate those rules. The MVC interfaces do not directly modify inventory or booking tables. The API and its data layer are the source of truth for application state.
 
-The relational database should remain the authoritative source for capacity and check-in state.
+Public endpoints expose only published inventory. Management endpoints enforce staff authentication and monument-level authorization. Existing server-side authorization, transactional capacity enforcement, and atomic check-in requirements continue to apply.
+
+Use a supported modern .NET version, to be selected for implementation. Entity Framework Core is a proposed data-access choice. The database product has not been confirmed and should be selected separately. The admin and public MVC interfaces may be organized as MVC Areas in one project or as separate MVC projects; separate deployments are not required.
 
 ---
 
